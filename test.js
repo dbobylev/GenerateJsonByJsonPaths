@@ -20,60 +20,79 @@ x =
 }
 
 vals = []
-vals[0] = ['client','string','123']
-vals[1] = ['date','string','01.01.2024']
-vals[2] = ['car', 'object','']
-vals[3] = ['car.model', 'string','kia']
-vals[4] = ['car.vin', 'string','xxxzzzyyy']
-vals[5] = ['car.risks', 'list','']
-vals[6] = ['car.risks[0]', 'object','']
-vals[7] = ['car.risks[0].x', 'string','123']
-vals[8] = ['car.risks[0].y', 'string','567']
-vals[7] = ['car.risks[1]', 'object', '']
-vals[7] = ['car.risks[1].x', 'string','123']
-vals[8] = ['car.risks[1].y', 'string','567']
-vals[9] = ['car.conds', 'list','']
-vals[10] = ['car.conds[0]', 'string','agent']
-vals[11] = ['car.conds[1]', 'string','lox']
+vals.push(['client','string','123'])
+vals.push(['date','string','01.01.2024'])
+vals.push(['car', 'object',''])
+vals.push(['car.model', 'string','kia'])
+vals.push(['car.vin', 'string','xxxzzzyyy'])
+vals.push(['car.risks', 'list',''])
+vals.push(['car.risks[0]', 'object',''])
+vals.push(['car.risks[0].x', 'string','123'])
+vals.push(['car.risks[0].y', 'string','567'])
+vals.push(['car.risks[1]', 'object', ''])
+vals.push(['car.risks[1].x', 'string','123'])
+vals.push(['car.risks[1].y', 'string','567'])
+vals.push(['car.conds', 'list',''])
+vals.push(['car.conds[0]', 'string','agent'])
+vals.push(['newfield', 'string','testroot'])
+vals.push(['aa', 'list',''])
+vals.push(['aa[0]', 'list',''])
+vals.push(['aa[0][0]', 'string','xx'])
+vals.push(['aa[0][1]', 'string','yy'])
+vals.push(['aa[1]', 'object',''])
+vals.push(['aa[1].xx', 'object',''])
+vals.push(['aa[1].xx.vals', 'string','100'])
 
 obj = {}
 
-
-
 function getobj(pobj, l=[]){
-    co
 
+    console.log(`Старт getobj ${JSON.stringify(pobj)} ${l}`)
     if (l.length === 1)
     {
         return pobj;
     }
     else
     {
-        s = l.shift();
-        return getobj(pobj[s], l)
+        firstelement = l.shift();
+        tempobj = pobj[firstelement]
+        return getobj(tempobj, l)
     }
 }
 
-for(let i=0;i<8;i++){
+function getlastelement(plist = []){
+    lastelement = plist[plist.length - 1]
+    lastelementnumber = Number(lastelement)
+    return isNaN(lastelementnumber) ? lastelement : lastelement
+}
 
-    let path = vals[i][0].split(/\[|\]\.|\./);
+for(let i=0;i<vals.length;i++){
+
+    let path = vals[i][0].split(/\[|\]|\]\[|\]\.|\./).filter(i => i);
     let type = vals[i][1];
     let value = vals[i][2];
 
+    console.log(`Начинаем обрабатывать ${JSON.stringify(path)} ${type} ${value}`)
+
     if (type === 'string'){
-      o = getobj(obj, path);
-      o[path[path.length-1]] = value;
+      tempobj = getobj(obj, path);
+      index = getlastelement(path);
+      tempobj[index] = value;
     }
 
     if (type === 'object'){
-        o = getobj(obj, path);
-        o[path[path.length-1]] = {};
+        tempobj = getobj(obj, path);
+        index = getlastelement(path);
+        tempobj[index] = {};
     }
 
     if (type === 'list'){
-        o = getobj(obj, path);
-        o[path[path.length-1]] = [];
+        tempobj = getobj(obj, path);
+        index = getlastelement(path);
+        tempobj[index] = [];
     }
+
+    console.log('Результат' + JSON.stringify(obj))
 }
 
 console.log(JSON.stringify(obj,null,2))
